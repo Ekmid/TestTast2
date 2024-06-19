@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="main.css">
+    <title>TextTask2</title>
+</head>
+
+<body>
+
+    <header class="header">
+        <img src="public/top-left.svg" alt="">
+        <img src="public/top-mid.svg" alt="">
+        <img src="public/top-right.svg" alt="">
+    </header>
+
+    <main class="main">
+
+        <img src="public/mid-left.svg" alt="">
+
+        <form class="form" id="login-form">
+
+            <img class="form__img" src="public/logo.svg" alt="">
+            <h1 class="form__title">Авторизация</h1>
+
+            <div class="input__content">
+                <img class="input__icon" src="public/person.svg" alt="">
+                <input class="form__login" id="login" type="text" placeholder="Email или телефон">
+            </div>
+
+            <div class="input__content">
+                <img class="input__icon" src="public/key.svg" alt="">
+                <input class="form__password" id="password" type="password" placeholder="Пароль">
+            </div>
+
+            <button type="button" class="form__btn" id="login-button">Войти</button>
+            <div id="preloader">Загрузка...</div>
+            <div id="error-message" class="hidden"></div>
+
+        </form>
+
+        <div id="success-message" class="hidden"></div>
+
+        <img src="public/mid-right.svg" alt="">
+
+    </main>
+
+    <footer class="footer">
+        <img src="public/bottom-left.svg" alt="">
+        <img src="public/bottom-mid.svg" alt="">
+        <img src="public/bottom-right.svg" alt="">
+    </footer>
+
+    <script>
+        document.getElementById('login-button').addEventListener('click', function() {
+            const login = document.getElementById('login').value;
+            const password = document.getElementById('password').value;
+            const loginForm = document.getElementById('login-form');
+            const preloader = document.getElementById('preloader');
+            const errorMessage = document.getElementById('error-message');
+            const successMessage = document.getElementById('success-message');
+
+            errorMessage.classList.add('hidden');
+            errorMessage.innerText = '';
+
+            preloader.style.display = 'block';
+            loginForm.querySelectorAll('input, button').forEach(el => el.disabled = true);
+
+            const url = `https://test-works.pr-uni.ru/api/login/index.php?login=${encodeURIComponent(login)}&password=${encodeURIComponent(password)}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "error") {
+                        throw new Error(data.errorMessage);
+                    }
+
+                    document.cookie = `token=${data.token}; path=/`;
+                    loginForm.classList.add('hidden');
+                    successMessage.innerText = `${data.user.name}, Вы успешно авторизованы!`;
+                    successMessage.classList.remove('hidden');
+                })
+                .catch(error => {
+                    errorMessage.innerText = `Ошибка: ${error.message}`;
+                    errorMessage.classList.remove('hidden');
+                })
+                .finally(() => {
+                    preloader.style.display = 'none';
+                    loginForm.querySelectorAll('input, button').forEach(el => el.disabled = false);
+                });
+        });
+    </script>
+
+</body>
+
+</html>
